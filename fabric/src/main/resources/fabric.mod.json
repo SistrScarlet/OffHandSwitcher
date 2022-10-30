@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "offhandswitcher",
+  "version": "${version}",
+  "name": "OffHand Switcher Mod",
+  "description": "オフハンドを切り替えできるModです。",
+  "authors": [
+    "Sistr"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+  "license": "MIT",
+  "icon": "assets/offhandswitcher/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.offhandswitcher.fabric.OffHandSwitcherModFabric"
+    ]
+  },
+  "mixins": [
+    "offhandswitcher.mixins.json",
+    "offhandswitcher-common.mixins.json"
+  ],
+  "depends": {
+    "minecraft": ">=1.18.2"
+  }
+}
