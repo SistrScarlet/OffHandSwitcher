@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerInventory.class)
-public class PlayerInventoryMixin implements HasOffHandSwitchState {
+public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     private boolean offHandSwitchState;
     private int offSideSlot;
     @Shadow
@@ -24,7 +24,9 @@ public class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Final
     public DefaultedList<ItemStack> main;
 
-    @Shadow @Final public PlayerEntity player;
+    @Shadow
+    @Final
+    public PlayerEntity player;
 
     @Inject(method = "getMainHandStack", at = @At("HEAD"), cancellable = true)
     private void onGetMainHandStack(CallbackInfoReturnable<ItemStack> cir) {
@@ -78,6 +80,11 @@ public class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Override
     public boolean getOffHandSwitchState() {
         return this.offHandSwitchState;
+    }
+
+    @Override
+    public void setOffSideSlot(int offSideSlot) {
+        this.offSideSlot = offSideSlot;
     }
 
     @Override

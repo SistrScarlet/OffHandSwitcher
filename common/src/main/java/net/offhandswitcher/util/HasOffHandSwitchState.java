@@ -6,6 +6,8 @@ public interface HasOffHandSwitchState {
 
     boolean getOffHandSwitchState();
 
+    void setOffSideSlot(int offSideSlot);
+
     int getOffSideSlot();
 
 }
