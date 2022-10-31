@@ -28,6 +28,11 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Final
     public PlayerEntity player;
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onInit(PlayerEntity player, CallbackInfo ci) {
+        selectedSlot = 4;
+    }
+
     @Inject(method = "getMainHandStack", at = @At("HEAD"), cancellable = true)
     private void onGetMainHandStack(CallbackInfoReturnable<ItemStack> cir) {
         if (this.player.world.isClient && offHandSwitchState) {
