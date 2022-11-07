@@ -8,6 +8,7 @@
     "MinecraftClientMixin"
   ],
   "mixins": [
+    "PlayerEntityMixin",
     "PlayerInventoryMixin"
   ],
   "injectors": {

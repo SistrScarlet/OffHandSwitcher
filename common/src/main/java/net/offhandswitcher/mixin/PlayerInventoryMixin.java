@@ -1,5 +1,6 @@
 package net.offhandswitcher.mixin;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -25,8 +26,10 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     public DefaultedList<ItemStack> main;
 
     @Shadow
-    @Final
-    public PlayerEntity player;
+    public abstract ItemStack getMainHandStack();
+
+    @Shadow
+    public abstract ItemStack removeStack(int slot, int amount);
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(PlayerEntity player, CallbackInfo ci) {
@@ -35,7 +38,7 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
 
     @Inject(method = "getMainHandStack", at = @At("HEAD"), cancellable = true)
     private void onGetMainHandStack(CallbackInfoReturnable<ItemStack> cir) {
-        if (this.player.world.isClient && offHandSwitchState) {
+        if (offHandSwitchState) {
             cir.setReturnValue(this.main.get(offSideSlot));
         }
     }
@@ -70,6 +73,32 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Inject(method = "addPickBlock", at = @At("HEAD"), cancellable = true)
     private void onAddPickBlock(ItemStack stack, CallbackInfo ci) {
         ci.cancel();
+    }
+
+    @Inject(method = "getOccupiedSlotWithRoomForStack", at = @At("HEAD"))
+    private void onGetOcc(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
+
+    }
+
+    @Inject(method = "updateItems", at = @At("HEAD"))
+    private void onUpdateItems(CallbackInfo ci) {
+
+    }
+
+    @Inject(method = "getBlockBreakingSpeed", at = @At("HEAD"))
+    private void onGetBBS(BlockState block, CallbackInfoReturnable<Float> cir) {
+
+    }
+
+    @Inject(method = "dropSelectedItem", at = @At("HEAD"), cancellable = true)
+    private void onDropSelectedItem(boolean entireStack, CallbackInfoReturnable<ItemStack> cir) {
+        if (offHandSwitchState) {
+            ItemStack itemStack = this.getMainHandStack();
+            if (itemStack.isEmpty()) {
+                cir.setReturnValue(ItemStack.EMPTY);
+            }
+            cir.setReturnValue(this.removeStack(40, entireStack ? itemStack.getCount() : 1));
+        }
     }
 
     @Override
