@@ -31,6 +31,15 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Shadow
     public abstract ItemStack removeStack(int slot, int amount);
 
+    @Shadow
+    public abstract int getOccupiedSlotWithRoomForStack(ItemStack stack);
+
+    @Shadow
+    public abstract int getEmptySlot();
+
+    @Shadow
+    protected abstract int addStack(int slot, ItemStack stack);
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(PlayerEntity player, CallbackInfo ci) {
         selectedSlot = 4;
@@ -70,6 +79,23 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
         ci.cancel();
     }
 
+    @Inject(method = "addStack(Lnet/minecraft/item/ItemStack;)I", at = @At("HEAD"), cancellable = true)
+    private void onAddStack(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
+        int i = this.getOccupiedSlotWithRoomForStack(stack);
+        if (i == -1) {
+            for (int k = 9; k < this.main.size(); ++k) {
+                if (!this.main.get(k).isEmpty()) continue;
+                i = k;
+                break;
+            }
+        }
+        if (i == -1) {
+            i = stack.getCount();
+        }
+        cir.setReturnValue(this.addStack(i, stack));
+
+    }
+
     @Inject(method = "addPickBlock", at = @At("HEAD"), cancellable = true)
     private void onAddPickBlock(ItemStack stack, CallbackInfo ci) {
         ci.cancel();
@@ -103,12 +129,7 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
 
     @Override
     public void setOffHandSwitchState(boolean switchState) {
-        if (switchState != this.offHandSwitchState) {
-            int tmp = this.selectedSlot;
-            this.selectedSlot = this.offSideSlot;
-            this.offSideSlot = tmp;
-            this.offHandSwitchState = switchState;
-        }
+        this.offHandSwitchState = switchState;
     }
 
     @Override

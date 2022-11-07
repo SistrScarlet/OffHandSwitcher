@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "net.offhandswitcher.fabric.OffHandSwitcherModFabric"
+    ],
+    "client": [
+      "net.offhandswitcher.fabric.OffHandSwitcherModFabric"
     ]
   },
   "mixins": [

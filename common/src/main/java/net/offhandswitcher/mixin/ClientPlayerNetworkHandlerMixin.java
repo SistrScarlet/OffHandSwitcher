@@ -24,8 +24,12 @@ public class ClientPlayerNetworkHandlerMixin {
                 return;
             }
             if (!player.isSpectator()) {
-                var switchState = ((HasOffHandSwitchState) player.getInventory());
+                var inventory = player.getInventory();
+                var switchState = ((HasOffHandSwitchState) inventory);
                 switchState.setOffHandSwitchState(!switchState.getOffHandSwitchState());
+                var tmp = inventory.selectedSlot;
+                inventory.selectedSlot = switchState.getOffSideSlot();
+                switchState.setOffSideSlot(tmp);
                 ci.cancel();
             }
         }

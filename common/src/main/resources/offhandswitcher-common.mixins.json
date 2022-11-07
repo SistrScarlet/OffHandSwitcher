@@ -9,7 +9,8 @@
   ],
   "mixins": [
     "PlayerEntityMixin",
-    "PlayerInventoryMixin"
+    "PlayerInventoryMixin",
+    "PlayerManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
