@@ -3,6 +3,7 @@ package net.offhandswitcher.mixin;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.offhandswitcher.network.SetOffHandPacket;
@@ -24,9 +25,7 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Shadow
     @Final
     public DefaultedList<ItemStack> main;
-
-    @Shadow
-    public abstract ItemStack getMainHandStack();
+    private final Item[] dropItems = new Item[9];
 
     @Shadow
     public abstract ItemStack removeStack(int slot, int amount);
@@ -35,10 +34,13 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     public abstract int getOccupiedSlotWithRoomForStack(ItemStack stack);
 
     @Shadow
-    public abstract int getEmptySlot();
+    protected abstract int addStack(int slot, ItemStack stack);
 
     @Shadow
-    protected abstract int addStack(int slot, ItemStack stack);
+    public abstract ItemStack getStack(int slot);
+
+    @Shadow
+    public abstract int getEmptySlot();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(PlayerEntity player, CallbackInfo ci) {
@@ -81,18 +83,33 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
 
     @Inject(method = "addStack(Lnet/minecraft/item/ItemStack;)I", at = @At("HEAD"), cancellable = true)
     private void onAddStack(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
-        int i = this.getOccupiedSlotWithRoomForStack(stack);
-        if (i == -1) {
+        int index = this.getOccupiedSlotWithRoomForStack(stack);
+        if (index == -1) {
+            for (int i = 0; i < 9; i++) {
+                if (!this.getStack(i).isEmpty()) continue;
+                var item = dropItems[i];
+                if (item != null && item == stack.getItem()) {
+                    dropItems[i] = null;
+                    if (i == selectedSlot && i < 4) {
+                        i = 40;
+                    }
+                    cir.setReturnValue(this.addStack(i, stack));
+                    return;
+                }
+            }
+        }
+
+        if (index == -1) {
             for (int k = 9; k < this.main.size(); ++k) {
                 if (!this.main.get(k).isEmpty()) continue;
-                i = k;
+                index = k;
                 break;
             }
         }
-        if (i == -1) {
-            i = stack.getCount();
+        if (index == -1) {
+            index = stack.getCount();
         }
-        cir.setReturnValue(this.addStack(i, stack));
+        cir.setReturnValue(this.addStack(index, stack));
 
     }
 
@@ -118,13 +135,18 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
 
     @Inject(method = "dropSelectedItem", at = @At("HEAD"), cancellable = true)
     private void onDropSelectedItem(boolean entireStack, CallbackInfoReturnable<ItemStack> cir) {
+        int index;
         if (offHandSwitchState) {
-            ItemStack itemStack = this.getMainHandStack();
-            if (itemStack.isEmpty()) {
-                cir.setReturnValue(ItemStack.EMPTY);
-            }
-            cir.setReturnValue(this.removeStack(40, entireStack ? itemStack.getCount() : 1));
+            index = 40;
+        } else {
+            index = selectedSlot;
         }
+        ItemStack itemStack = this.getStack(index);
+        if (itemStack.isEmpty()) {
+            cir.setReturnValue(ItemStack.EMPTY);
+        }
+        dropItems[selectedSlot] = itemStack.getItem();
+        cir.setReturnValue(this.removeStack(index, entireStack ? itemStack.getCount() : 1));
     }
 
     @Override
