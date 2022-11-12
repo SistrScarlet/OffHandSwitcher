@@ -39,9 +39,6 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     @Shadow
     public abstract ItemStack getStack(int slot);
 
-    @Shadow
-    public abstract int getEmptySlot();
-
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInit(PlayerEntity player, CallbackInfo ci) {
         selectedSlot = 4;
@@ -112,6 +109,15 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
         cir.setReturnValue(this.addStack(index, stack));
 
     }
+
+    //Dupeする
+    /*@Inject(method = "setStack", at = @At("HEAD"), cancellable = true)
+    private void onSetStack(int slot, ItemStack stack, CallbackInfo ci) {
+        if (slot == this.selectedSlot && slot < 4 && this.offHand.get(0).isEmpty()) {
+            this.setStack(40, stack);
+            ci.cancel();
+        }
+    }*/
 
     @Inject(method = "addPickBlock", at = @At("HEAD"), cancellable = true)
     private void onAddPickBlock(ItemStack stack, CallbackInfo ci) {
