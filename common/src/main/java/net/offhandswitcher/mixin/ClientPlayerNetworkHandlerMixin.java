@@ -2,7 +2,7 @@ package net.offhandswitcher.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.offhandswitcher.util.HasOffHandSwitchState;
 import org.spongepowered.asm.mixin.Mixin;
