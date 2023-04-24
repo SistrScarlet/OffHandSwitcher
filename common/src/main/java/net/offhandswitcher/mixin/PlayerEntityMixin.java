@@ -18,16 +18,18 @@ public class PlayerEntityMixin {
     @Final
     private PlayerInventory inventory;
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
+    @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
     private void onWriteNbt(NbtCompound nbt, CallbackInfo ci) {
         nbt.putByte("SelectOffSlot", (byte) ((HasOffHandSwitchState) this.inventory).getOffSideSlot());
         nbt.putBoolean("SelectOffSwitch", ((HasOffHandSwitchState) this.inventory).getOffHandSwitchState());
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
+    @Inject(method = "readCustomDataFromNbt", at = @At("HEAD"))
     private void onReadNbt(NbtCompound nbt, CallbackInfo ci) {
         ((HasOffHandSwitchState) this.inventory).setOffSideSlot(nbt.getByte("SelectOffSlot"));
         ((HasOffHandSwitchState) this.inventory).setOffHandSwitchState(nbt.getBoolean("SelectOffSwitch"));
+        //実行タイミングが遅いのでここでやる
+        this.inventory.selectedSlot = nbt.getInt("SelectedItemSlot");
     }
 
 }
