@@ -114,7 +114,7 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
     }
 
     //ホットバーのオフハンドにアイテムが入った時、オフハンドに送る
-    @Inject(method = "setStack", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "setStack", at = @At("HEAD"), cancellable = true)
     private void onSetStack(int slot, ItemStack stack, CallbackInfo ci) {
         if (offHandSwitchState) {
             if (this.getStack(40).isEmpty() && slot == selectedSlot) {
@@ -127,7 +127,7 @@ public abstract class PlayerInventoryMixin implements HasOffHandSwitchState {
                 ci.cancel();
             }
         }
-    }
+    }*/
 
     @Inject(method = "addPickBlock", at = @At("HEAD"), cancellable = true)
     private void onAddPickBlock(ItemStack stack, CallbackInfo ci) {
