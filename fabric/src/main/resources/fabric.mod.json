@@ -23,11 +23,16 @@
     ]
   },
   "mixins": [
-    "offhandswitcher.mixins.json",
-    "offhandswitcher-common.mixins.json"
+    "offhandswitcher.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.18.2",
-    "fabric": "*"
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.20.4",
+    "java": ">=17",
+    "architectury": ">=11.1.17",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
   }
 }
